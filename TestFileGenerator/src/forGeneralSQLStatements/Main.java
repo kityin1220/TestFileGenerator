@@ -1,4 +1,4 @@
-package main;
+package forGeneralSQLStatements;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,35 +12,43 @@ import java.time.Instant;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		if (args.length != 3) {
-			System.out.println("Incorrect Parameter. Please input Target File Name , No. of Rows and No of Columns");
-			return;
-		}
-		String fileName = args[0];
-		int row = Integer.parseInt(args[1]);
-		int col = Integer.parseInt(args[2]);
+		generateSqlFile(args);
+	}
 
+	public static File generateFile(String fileName) throws IOException {
 		// Create File
 		String fileSeparator = System.getProperty("file.separator");
 		String relativeFilePath = "output";
-
 		File testFile = new File(relativeFilePath + fileSeparator + fileName);
 		if (testFile.createNewFile()) {
 			System.out.println(relativeFilePath + fileSeparator + fileName + " is created.");
 		} else {
 			System.out.println(relativeFilePath + fileSeparator + fileName + " already existed.");
 		}
+		return testFile;
+	}
+
+	public static void generateSqlFile(String[] args) throws IOException {
+		String fileName = args[0];
+		int begin = Integer.parseInt(args[1]);
+		int end = Integer.parseInt(args[2]);
+
+		// Create File
+		File testFile = generateFile(fileName);
 
 		// Write File
-		Instant start = Instant.now();
+		Instant startTime = Instant.now();
 		String encoding = "UTF8";
 		try (OutputStream os = new FileOutputStream(testFile);
 				OutputStreamWriter osw = new OutputStreamWriter(os, encoding);
 				BufferedWriter bf = new BufferedWriter(osw);) {
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					bf.write("test" + j + (j == col ? "" : "\t"));
-				}
+			bf.write(
+					"INSERT INTO `ptqnruser`.`target_user` (`project_id`,`easy_id`,`seg_reservation_id`,`insert_time`) VALUES"); // INSERT
+			// STATEMENT
+			bf.newLine();
+			bf.flush();
+			for (int i = begin; i <= end; i++) {
+				bf.write(String.format("(5,%d,1,'2019/1/1 0:00:00')" + (i == end ? ";" : ","), i));
 				bf.newLine();
 				bf.flush();
 			}
@@ -49,8 +57,8 @@ public class Main {
 		} finally {
 			System.out.println("File writing is done...");
 		}
-		Instant end = Instant.now();
-		Duration timeElapsed = Duration.between(start, end);
+		Instant endTime = Instant.now();
+		Duration timeElapsed = Duration.between(startTime, endTime);
 		System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
 
 	}
